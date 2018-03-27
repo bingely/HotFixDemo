@@ -18,17 +18,18 @@ public class AppContext extends Application {
     protected void attachBaseContext(Context base) {
 
         super.attachBaseContext(base);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
         initHotFix();
-
     }
+
 
     private void initHotFix() {
-        String appVersion = AppVersionUtils.getVersionCode(this)+"";
+        String appVersion = "1.0.0";
+        try {
+            appVersion = this.getPackageManager()
+                    .getPackageInfo(this.getPackageName(), 0)
+                    .versionName;
+        } catch (Exception e) {
+        }
 
 // initialize必须放在attachBaseContext最前面，初始化代码直接写在Application类里面，切勿封装到其他类。
         SophixManager.getInstance().setContext(this)
@@ -52,7 +53,13 @@ public class AppContext extends Application {
                         }
                     }
                 }).initialize();
-// queryAndLoadNewPatch不可放在attachBaseContext 中，否则无网络权限，建议放在后面任意时刻，如onCreate中
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // queryAndLoadNewPatch不可放在attachBaseContext 中，否则无网络权限，建议放在后面任意时刻，如onCreate中
         SophixManager.getInstance().queryAndLoadNewPatch();
     }
 }
